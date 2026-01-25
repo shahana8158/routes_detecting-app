@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Shop</title>
+    <style>
+        body {
+            background:#000;
+            color:#eee;
+            font-family:Arial;
+            padding:20px;
+        }
+        .box {
+            max-width:500px;
+            margin:auto;
+            background:#2c2c2c;
+            padding:20px;
+            border-radius:10px;
+        }
+        input, select, textarea {
+            width:100%;
+            padding:8px;
+            margin:6px 0;
+            border-radius:5px;
+            border:none;
+        }
+        button {
+            background:#28a745;
+            border:none;
+            padding:10px 15px;
+            color:white;
+            border-radius:5px;
+            cursor:pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div style="text-align:center; margin-bottom:15px;">
+    <a href="/" style="
+        padding:8px 16px;
+        background:#198754;
+        color:white;
+        text-decoration:none;
+        border-radius:6px;">
+        ⬅ Back to Home
+    </a>
+</div>
+
+<div class="box">
+    <h2>➕ Add New Shop</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <label>Shop Name</label>
+        <input type="text" name="name" required>
+
+        <label>Day</label>
+        <select name="day" required>
+            <option>Monday</option>
+            <option>Tuesday</option>
+            <option>Wednesday</option>
+            <option>Thursday</option>
+            <option>Saturday</option>
+            <option>Sunday</option>
+        </select>
+
+        <label>Order (Route Position)</label>
+        <input type="number" name="order" required>
+
+        <label>Latitude</label>
+        <input type="text" name="lat">
+
+        <label>Longitude</label>
+        <input type="text" name="lng">
+
+        <label>Notes</label>
+        <textarea name="notes"></textarea>
+
+        <button type="submit">Save Shop</button>
+    </form>
+</div>
+
+</body>
+</html>

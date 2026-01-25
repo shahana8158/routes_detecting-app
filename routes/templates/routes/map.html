@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Map View</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+</head>
+<body>
+
+<h2>{{ shop.name }}</h2>
+
+<div id="map" style="height: 400px;"></div>
+
+<button onclick="openNavigation()">Navigate</button>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    const shopLat = Number("{{ shop.latitude }}");
+    const shopLng = Number("{{ shop.longitude }}");
+
+    const map = L.map('map').setView([shopLat, shopLng], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    const shopMarker = L.marker([shopLat, shopLng]).addTo(map)
+        .bindPopup("{{ shop.name }}")
+        .openPopup();
+
+    function openNavigation() {
+        const url = `https://www.google.com/maps/dir/?api=1&destination=${shopLat},${shopLng}`;
+        window.open(url, "_blank");
+    }
+</script>
+
+</body>
+</html>

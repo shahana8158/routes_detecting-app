@@ -1,0 +1,72 @@
+{% extends "routes/base.html" %}
+{% block title %}Holiday{% endblock %}
+
+{% block content %}
+
+<style>
+    body {
+        margin: 0;
+        height: 100vh;
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: Arial, sans-serif;
+    }
+
+    .card {
+        background: #2c2c2c;
+        color: #eee;
+        padding: 45px 70px;
+        border-radius: 14px;
+        text-align: center;
+        box-shadow: 0 0 25px rgba(255,255,255,0.15);
+        animation: fadeIn 1.5s ease-in-out, glow 3s infinite alternate;
+    }
+
+    h1 {
+        margin-bottom: 10px;
+        letter-spacing: 2px;
+    }
+
+    p {
+        color: #bbb;
+        font-size: 18px;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes glow {
+        from {
+            box-shadow: 0 0 15px rgba(255,255,255,0.15);
+        }
+        to {
+            box-shadow: 0 0 35px rgba(255,255,255,0.35);
+        }
+    }
+</style>
+
+<!-- ✅ Auto refresh every 30 minutes -->
+<script>
+    setTimeout(function(){
+        location.reload();
+    }, 1800000);
+</script>
+
+<div class="card">
+    <h1>🎉 HOLIDAY 🎉</h1>
+    <p>Today is {{ today }}</p>
+    <p>No routes today. Enjoy your rest ☕</p>
+    <p style="font-size:13px; opacity:0.6;">Page auto-refreshes every 30 minutes</p>
+</div>
+
+{% endblock %}

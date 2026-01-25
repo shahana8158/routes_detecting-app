@@ -1,0 +1,150 @@
+{% extends "routes/base.html" %}
+{% block title %}Today's Routes{% endblock %}
+
+{% block content %}
+
+<style>
+    body {
+        margin: 0;
+        height: 100vh;
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: Arial, sans-serif;
+    }
+
+    .card {
+        background: #2c2c2c;
+        color: #eee;
+        padding: 45px 70px;
+        border-radius: 14px;
+        width: 80%;
+        max-width: 900px;
+        box-shadow: 0 0 25px rgba(255,255,255,0.15);
+        animation: fadeIn 1.5s ease-in-out, glow 3s infinite alternate;
+        overflow-y: auto;
+        max-height: 85vh;
+    }
+
+    h1 {
+        margin-bottom: 10px;
+        letter-spacing: 2px;
+        text-align: center;
+    }
+
+    p {
+        color: #bbb;
+        font-size: 18px;
+    }
+
+    a {
+        color: #7dd3fc;
+        text-decoration: none;
+    }
+
+    hr {
+        border: 0;
+        border-top: 1px solid #444;
+        margin: 15px 0;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes glow {
+        from {
+            box-shadow: 0 0 15px rgba(255,255,255,0.15);
+        }
+        to {
+            box-shadow: 0 0 35px rgba(255,255,255,0.35);
+        }
+    }
+    .shop-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #444;
+}
+
+.shop-info h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.shop-info p {
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: #ccc;
+}
+
+.shop-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+}
+
+.nav { background: #0d6efd; color: white; }
+.edit { background: #ffc107; color: black; }
+.delete { background: #dc3545; color: white; }
+
+</style>
+
+<div class="card">
+
+<h1>📍 Today's Shop Routes</h1>
+
+<p><strong>Day:</strong> {{ today }}</p>
+
+{% if shops %}
+    <ol>
+        {% for shop in shops %}
+            <li>
+                <div class="shop-item">
+    <div class="shop-info">
+        <h3>{{ forloop.counter }}. {{ shop.name }}</h3>
+        <!-- <p>📍 {{ shop.latitude }}, {{ shop.longitude }}</p> -->
+    </div>
+
+    <div class="shop-actions">
+        <a href="/shop/{{ shop.id }}/" class="btn nav">🧭 Navigate</a>
+        <a href="/shop/edit/{{ shop.id }}/" class="btn edit">✏️ Edit</a>
+        <a href="/shop/delete/{{ shop.id }}/"
+           onclick="return confirm('Delete this shop?')"
+           class="btn delete">🗑 Delete</a>
+    </div>
+</div>
+
+
+            </li>
+            <hr>
+        {% endfor %}
+    </ol>
+{% else %}
+    <p>🚫 No routes available for today.</p>
+{% endif %}
+
+</div>
+
+{% endblock %}
