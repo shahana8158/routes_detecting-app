@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import today_routes, shop_map,test_holiday, daily_report,save_daily_report, add_shop,delete_shop, edit_shop
 from django.shortcuts import render
-
+from . import views
 
 
 
@@ -14,5 +14,10 @@ urlpatterns = [
     path("add-shop/", add_shop, name="add_shop"),
     path("shop/edit/<int:shop_id>/", edit_shop, name="edit_shop"),
     path("shop/delete/<int:shop_id>/", delete_shop, name="delete_shop"),
+    path("day/<str:day>/", views.routes_by_day, name="routes_by_day"),
+    path("holiday/", views.holiday, name="holiday"),
+    path("shop/delete-ajax/<int:shop_id>/", views.delete_shop_ajax),
+
+
 
 ]

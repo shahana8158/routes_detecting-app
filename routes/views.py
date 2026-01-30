@@ -11,6 +11,20 @@ from datetime import datetime
 import pytz
 from django.shortcuts import render ,redirect
 from .models import Shop
+from django.contrib import messages
+from django.utils import timezone
+from django.db.models import Count
+# Find duplicates
+duplicates = DailyReport.objects.values('date').annotate(count=Count('id')).filter(count__gt=1)
+
+for d in duplicates:
+    date_val = d['date']
+    # Keep only the first row, delete others
+    reports = DailyReport.objects.filter(date=date_val)
+    first = reports.first()
+    reports.exclude(id=first.id).delete()
+
+print("Duplicates removed")
 
 
 def today_routes(request):
@@ -51,30 +65,13 @@ def test_holiday(request):
 
 
 def daily_report(request):
-    today = date.today()
-    start_date = today - timedelta(days=6)   # last 7 days
-    tomorrow = today + timedelta(days=1)
+    auto_create_missing_days()
 
-    # last 7 days data
-    week_reports = DailyReport.objects.order_by("-date")[:7]
+    reports = DailyReport.objects.order_by("date")
 
-
-    # tomorrow row (not saved yet)
-    tomorrow_report = {
-        "date": tomorrow,
-        "total_amount": "",
-        "fuel_expense": "",
-        "credit": "",
-        "status": "Pending",
-    }
-
-    context = {
-       "week_reports": week_reports,
-       "today": date.today()
-}
-
-    return render(request, "routes/daily_report.html", context)
-
+    return render(request, "routes/daily_report.html", {
+        "week_reports": reports
+    })
 
 
 
@@ -120,6 +117,8 @@ def add_shop(request):
             notes=request.POST.get("notes"),
             is_active=True
         )
+
+        messages.success(request, "✅ Shop added successfully!")
         return redirect("today_routes")
 
     return render(request, "routes/add_shop.html")
@@ -150,3 +149,62 @@ def delete_shop(request, shop_id):
     shop = get_object_or_404(Shop, id=shop_id)
     shop.delete()
     return redirect("/")
+
+
+
+from django.http import JsonResponse
+
+def routes_by_day(request, day):
+    day = day.lower()   # normalize
+    shops = Shop.objects.filter(day__iexact=day)
+    data = []
+
+    for shop in shops:
+        data.append({
+            "id": shop.id,
+            "name": shop.name,
+            
+        })
+
+    return JsonResponse(data, safe=False)
+
+
+
+def holiday(request):
+    return render(request, "routes/holiday.html")
+
+
+
+def delete_shop_ajax(request, shop_id):
+    if request.method == "POST":
+        shop = get_object_or_404(Shop, id=shop_id)
+        shop.delete()
+        return JsonResponse({
+            "success": True,
+            "message": "Shop deleted successfully"
+        })
+
+    return JsonResponse({"success": False}, status=400)
+
+
+
+
+def auto_create_missing_days():
+    today = date.today()
+
+    for i in range(7):
+        d = today - timedelta(days=i)
+
+        DailyReport.objects.get_or_create(
+            date=d,
+            defaults={
+                "total_amount": 0,
+                "fuel_expense": 0,
+                "credit_amount": 0,
+                "status": "Pending"
+            }
+        )
+
+
+
+

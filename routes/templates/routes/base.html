@@ -63,6 +63,11 @@
 
 <!-- GLOBAL BUTTON (always visible) -->
 <div class="top-buttons">
+
+ <button style="color: black;" class="btn" onclick="openPopup()">📅 All Routes</button>
+
+
+
     <a href="/add-shop/">
         <button class="add-btn">➕ Add Shop</button>
     </a>
@@ -73,9 +78,201 @@
 </div>
 
 
+{% if messages %}
+    {% for message in messages %}
+        <div id="pageMessage"
+             style="
+                position: fixed;
+                top: 25px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #28a745;
+                color: white;
+                padding: 10px 25px;
+                border-radius: 25px;
+                font-weight: bold;
+                font-size: 18px;
+                z-index: 99999;
+                box-shadow: 0 0 10px rgba(0,0,0,0.5);
+             ">
+            {{ message }}
+        </div>
+
+        <script>
+            setTimeout(() => {
+                const msg = document.getElementById("pageMessage");
+                if (msg) {
+                    msg.style.transition = "opacity 1s";
+                    msg.style.opacity = "0";
+                    setTimeout(() => msg.remove(), 1000);
+                }
+            }, 3000);
+        </script>
+    {% endfor %}
+{% endif %}
 
 {% block content %}
 {% endblock %}
+<!-- Overlay -->
+<div id="overlay" onclick="closePopup()" style="display:none;
+position:fixed;
+top:0;left:0;
+width:100%;height:100%;
+background:rgba(0,0,0,0.6);
+z-index:999;">
+</div>
+
+<!-- Popup Modal -->
+<div id="popup" style="display:none;
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+z-index:1000;
+width:700px;">
+
+
+<div class="card">
+    <div id="popupMessage"
+     style="text-align:center;color:#9f0104;font-weight:bold;margin-bottom:10px; font-size: 30px;">
+</div>
+
+    <h2 style="text-align:center; ">📅 Select Day</h2>
+
+    <div style="text-align:center; margin-bottom:15px;">
+        <button onclick="loadDay('Monday')">Monday</button>
+        <button onclick="loadDay('Tuesday')">Tuesday</button>
+        <button onclick="loadDay('Wednesday')">Wednesday</button>
+        <button onclick="loadDay('Thursday')">Thursday</button>
+        <button onclick="loadDay('Friday')">Friday</button>
+        <button onclick="loadDay('Saturday')">Saturday</button>
+        <button onclick="loadDay('Sunday')">Sunday</button>
+    </div>
+
+    <!-- Result same card style -->
+    <div id="routesResult"></div>
+
+    <div style="text-align:center; ">
+        <button style="background-color: red; color: aliceblue; border-radius: 7px;" onclick="closePopup()">Close</button>
+    </div>
+
+</div>
+</div>
+
+<script>
+
+    
+function openPopup() {
+    document.getElementById("popup").style.display = "block";
+    document.getElementById("overlay").style.display = "block";
+}
+
+function closePopup() {
+    document.getElementById("popup").style.display = "none";
+    document.getElementById("overlay").style.display = "none";
+}
+
+
+function loadDay(day) {
+
+    fetch(`/day/${day.toLowerCase()}/`)
+
+        .then(res => res.json())
+        .then(data => {
+
+            let html = `<h3>Day : ${day}</h3>`;
+
+            if (data.length === 0) {
+                html += `<p>🚫 No routes available for this day.</p>`;
+            } else {
+                data.forEach(shop => {
+html += `
+<div style="
+    margin:10px 0;
+    padding:10px;
+    background:#1f1f1f;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+">
+
+    <div>
+        
+        📍 
+        <a href="/shop/${shop.id}/" 
+           style="color:#7dd3fc; text-decoration:none; font-weight:bold;">
+           ${shop.name}
+        </a>
+    </div>
+
+    <div style="display:flex; gap:8px;">
+        <a href="/shop/edit/${shop.id}/"
+           style="background:#ffc107;color:black;padding:4px 10px;border-radius:5px;font-size:12px;text-decoration:none;">
+           ✏️ Edit
+        </a>
+
+        <a href="#"
+   onclick="deleteShop(${shop.id}, '${day}')"
+   style="background:#dc3545;color:white;padding:4px 10px;border-radius:5px;font-size:12px;text-decoration:none;">
+   🗑 Delete
+</a>
+
+    </div>
+
+</div>
+`;
+
+                });
+            }
+
+            document.getElementById("routesResult").innerHTML = html;
+        });
+}
+
+
+
+
+function deleteShop(shopId, day) {
+    if (!confirm("Delete this shop?")) return;
+
+    fetch(`/shop/delete-ajax/${shopId}/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}"
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+
+            // ✅ CORRECT ID
+            const msg = document.getElementById("popupMessage");
+            msg.innerText = data.message;
+            msg.style.display = "block";
+            msg.style.opacity = "1";
+
+            // reload routes
+            loadDay(day);
+
+            // 🔥 AUTO FADE AFTER 3 SECONDS
+            setTimeout(() => {
+                msg.style.transition = "opacity 1s";
+                msg.style.opacity = "0";
+
+                setTimeout(() => {
+                    msg.style.display = "none";
+                }, 1000);
+
+            }, 3000);
+        }
+    });
+}
+
+
+
+</script>
+
 
 </body>
 </html>
